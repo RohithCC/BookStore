@@ -11,12 +11,19 @@ mongoose.set('strictQuery', true);
 //mongoose.set("strictQuery", false);
 //app
 
+const path = require("path");
+
 const AuthRoutes = require('./routes/auth');
 const userRoutes = require('./routes/user');
 const categoryRoutes = require("./routes/category");
 const productRoutes = require("./routes/product");
 const braintreeRoutes = require("./routes/braintree");
 const orderRoutes = require("./routes/order");
+
+
+
+
+
 
 const app = express();
 
@@ -69,6 +76,29 @@ mongoose.connect(process.env.DATABASE, {
         //  of people JSON back to the browser in response to this request:
         response.send(peopleJSON);
       });
+
+
+      // -- deployment ---
+
+
+__dirname = path.resolve();
+if(process.env.NODE_ENV==='production')
+{
+      app.use(express.static(path.join(__dirname, "/frontend/build")));
+
+      app.get("*", (req, res) => {
+        res.sendFile(path.resolve(__dirname, "frontend", "build", "index.html"));
+      });
+
+}
+else {
+  app.get("/", (req, res) => {
+    res.send("API is Running");
+  });
+}
+
+// -- deployment ----
+
 
 const port = process.env.PORT || 8000
 
